@@ -1,19 +1,20 @@
 import logging
 import os.path
 
+import asyncio
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import input_file
 from yt_dlp import YoutubeDL
 import tempfile
 
 API_TOKEN = os.getenv('TG_BOT_TOKEN')
+ADMIN_CHAT_ID = os.getenv('ADMIN_CHAT_ID')
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 
-# Initialize bot and dispatcher
+event_loop = asyncio.new_event_loop()
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher(bot, loop=event_loop)
 
 
 @dp.message_handler()
@@ -29,5 +30,10 @@ async def download_video(message: types.Message):
             await message.answer_video(video=file)
 
 
+async def on_startup():
+    await bot.send_message(chat_id=ADMIN_CHAT_ID, text="bot redeployed")
+
+
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    event_loop.run_until_complete(on_startup())
+    executor.start_polling(dp, skip_updates=False)
