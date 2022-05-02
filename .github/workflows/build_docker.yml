@@ -20,7 +20,6 @@ jobs:
       - name: Build image and push to Docker Hub and GitHub Container Registry
         uses: docker/build-push-action@v2
         with:
-          context: ./src/samples/simple
           tags: |
             ghcr.io/xavescor/youtube-download-bot/youtube-download-bot:latest
           push: ${{ github.ref == '123' }}
