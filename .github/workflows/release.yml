@@ -43,5 +43,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }},cr.yandex/youtube-telegram-bot/youtube-telegram-bot
+          tags: ${{ steps.meta.outputs.tags }},${{ secrets.YC_REPOSITORY_URL }}
           labels: ${{ steps.meta.outputs.labels }}
