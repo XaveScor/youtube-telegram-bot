@@ -31,7 +31,8 @@ async def download_video(message: types.Message):
 
 
 async def on_startup():
-    await bot.send_message(chat_id=ADMIN_CHAT_ID, text="bot redeployed")
+    if ADMIN_CHAT_ID is not None:
+        await bot.send_message(chat_id=ADMIN_CHAT_ID, text="bot redeployed")
 
 
 if __name__ == '__main__':
