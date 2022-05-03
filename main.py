@@ -1,11 +1,13 @@
 import logging
 import os.path
-
+import re
 import asyncio
+import tempfile
+
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import input_file
 from yt_dlp import YoutubeDL
-import tempfile
+import ffmpeg
 
 API_TOKEN = os.getenv('TG_BOT_TOKEN')
 ADMIN_CHAT_ID = os.getenv('ADMIN_CHAT_ID')
@@ -23,11 +25,23 @@ async def download_video(message: types.Message):
         with YoutubeDL({
             'outtmpl': {
                 'default': os.path.join(tmpdirname, '%(title)s.%(ext)s'),
-            }
+            },
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'm4a',
+            }],
         }) as ydl:
             info = ydl.extract_info(message.text, download=True)
-            file = input_file.InputFile(path_or_bytesio=ydl.prepare_filename(info))
-            await message.answer_video(video=file)
+            # Пока так. Как доставать реальный формат файла я не нашёл
+            filename = re.sub(r'\.webm$', '.m4a', ydl.prepare_filename(info))
+
+            duration = ffmpeg.probe(filename)['format']['duration']
+            file = input_file.InputFile(path_or_bytesio=filename)
+            await message.answer_audio(
+                audio=file,
+                duration=duration
+            )
 
 
 async def on_startup():
